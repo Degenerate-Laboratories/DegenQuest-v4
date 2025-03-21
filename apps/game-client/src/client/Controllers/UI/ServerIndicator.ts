@@ -84,10 +84,15 @@ export class ServerIndicator {
         // Format the display text
         let displayText;
         if (serverUrl.startsWith('http://') || serverUrl.startsWith('https://')) {
-            // Extract hostname from URL
+            // Extract hostname and port from URL
             try {
                 const url = new URL(serverUrl);
-                displayText = `Server: ${url.hostname}`;
+                // If it's localhost or 127.0.0.1, include the port
+                if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+                    displayText = `Server: ${url.hostname}:${url.port || this._ui._game.config.port}`;
+                } else {
+                    displayText = `Server: ${url.hostname}`;
+                }
             } catch (e) {
                 displayText = `Server: ${serverUrl}`;
             }
@@ -98,15 +103,9 @@ export class ServerIndicator {
         // Update the text
         this._serverText.text = displayText;
         
-        // Update status indicator color based on connection type
-        // Green for production, yellow for local, blue for custom
-        if (serverUrl.includes('localhost') || serverUrl.includes('127.0.0.1')) {
-            this._statusIndicator.background = "#FFEB3B"; // Yellow for local
-        } else if (serverUrl.includes('api.degenquest.ai')) {
-            this._statusIndicator.background = "#4CAF50"; // Green for production
-        } else {
-            this._statusIndicator.background = "#2196F3"; // Blue for custom
-        }
+        // Update status indicator color - always green
+        // Use green for all servers as requested
+        this._statusIndicator.background = "#4CAF50"; // Green for all servers
     }
 
     /**
