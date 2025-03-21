@@ -2,6 +2,7 @@ import { Rectangle } from "@babylonjs/gui/2D/controls/rectangle";
 import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
 import { UserInterface } from "../UserInterface";
 import { Control } from "@babylonjs/gui/2D/controls/control";
+import { isLocal } from "../../Utils";
 
 /**
  * ServerIndicator displays the currently connected server in the bottom left corner
@@ -47,11 +48,24 @@ export class ServerIndicator {
     }
 
     /**
+     * Get the default server URL based on environment
+     */
+    private _getDefaultServerUrl(): string {
+        // If running locally, default to localhost
+        if (isLocal()) {
+            return `http://localhost:${this._ui._game.config.port}`;
+        }
+        
+        // Production default
+        return 'https://api.degenquest.ai';
+    }
+
+    /**
      * Update the server info display
      */
     private _updateServerInfo(): void {
         // Get server URL from localStorage or use default
-        const serverUrl = localStorage.getItem('selectedServer') || 'Default Server';
+        const serverUrl = localStorage.getItem('selectedServer') || this._getDefaultServerUrl();
         
         // Format the display text
         let displayText;
