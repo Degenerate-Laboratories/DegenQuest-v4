@@ -10,6 +10,7 @@ import State from "../../Screens/Screens";
 import { GameController } from "../GameController";
 import { ServerMsg } from "../../../shared/types";
 import { Tools } from "@babylonjs/core/Misc/tools";
+import { clearLocalStorage } from "../../Utils";
 
 export class MainMenu {
     private _UI: UserInterface;
@@ -72,6 +73,13 @@ export class MainMenu {
                     menuTitle: "Stuck?",
                     click: () => {
                         this._game.sendMessage(ServerMsg.PLAYER_RESET_POSITION);
+                    },
+                },
+                forgetServer: {
+                    menuTitle: "Forgot server preference",
+                    click: () => {
+                        clearLocalStorage();
+                        alert("Server preference cleared. Refresh the page to connect to the default server.");
                     },
                 },
                 screenshot: {
