@@ -28,7 +28,6 @@ import {
     Panel_Quests,
     Cursor,
     Watermark,
-    ServerIndicator,
 } from "./UI";
 
 import { Room } from "colyseus.js";
@@ -75,7 +74,6 @@ export class UserInterface {
     public _DamageText: DamageText;
     public _Cursor: Cursor;
     public _Watermark: Watermark;
-    public _ServerIndicator: ServerIndicator;
 
     // openable panels
     private _panels: Panel[];
@@ -139,9 +137,6 @@ export class UserInterface {
         // cursor
         this._Cursor = new Cursor(this);
         this._Watermark = new Watermark(this);
-        
-        // server indicator
-        this._ServerIndicator = new ServerIndicator(this);
 
         // create debug ui + events
         this._DebugBox = new DebugBox(this._playerUI, this._engine, this._scene, this._room, this._currentPlayer, this._entities);
@@ -256,11 +251,6 @@ export class UserInterface {
 
         //
         this.dragging();
-        
-        // Update server indicator if it exists
-        if (this._ServerIndicator) {
-            this._ServerIndicator.update();
-        }
     }
 
     // runs in the afterRender callback.
