@@ -20,6 +20,7 @@ import { Panel_Quests } from "./Panels/Panel_Quests";
 
 import { Cursor } from "./Cursor";
 import { Watermark } from "./Watermark";
+import { ServerIndicator } from "./ServerIndicator";
 
 export {
     ChatBox,
@@ -41,4 +42,5 @@ export {
     Panel_Quests,
     Cursor,
     Watermark,
+    ServerIndicator,
 };
