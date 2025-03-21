@@ -1,6 +1,6 @@
 import State from "../Screens/Screens";
 import axios from "axios";
-import { apiUrl } from "../Utils/index";
+import { getServerUrl } from "../../shared/config/ServerHelper";
 import { Network } from "./Network";
 import { AssetsController } from "./AssetsController";
 import { VatController } from "./VatController";
@@ -100,7 +100,7 @@ export class GameController {
     async initializeGameData() {
         const result = await axios.request({
             method: "GET",
-            url: apiUrl(this.config.port) + "/load_game_data",
+            url: getServerUrl('http', true, this.config.port) + "/load_game_data",
         });
         this._gameData = result.data.data;
         console.log("[GAME] loaded game data", this._gameData);
@@ -191,7 +191,7 @@ export class GameController {
     public async forceLogin() {
         const req = await axios.request({
             method: "POST",
-            url: apiUrl(this.config.port) + "/returnRandomUser",
+            url: getServerUrl('http', true, this.config.port) + "/returnRandomUser",
         });
         let character = req.data.user;
         if (character) {
@@ -219,7 +219,7 @@ export class GameController {
         const req = await axios.request({
             method: "POST",
             params: { token: user.token },
-            url: apiUrl(this.config.port) + "/check",
+            url: getServerUrl('http', true, this.config.port) + "/check",
         });
 
         // check req status
@@ -248,7 +248,7 @@ export class GameController {
                 username: username,
                 password: password,
             },
-            url: apiUrl(this.config.port) + "/login",
+            url: getServerUrl('http', true, this.config.port) + "/login",
         });
 
         // check req status

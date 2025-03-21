@@ -2,6 +2,7 @@ import { Rectangle } from "@babylonjs/gui/2D/controls/rectangle";
 import { TextBlock } from "@babylonjs/gui/2D/controls/textBlock";
 import { UserInterface } from "../UserInterface";
 import { Control } from "@babylonjs/gui/2D/controls/control";
+import { getServerUrl, extractHostname, getLocalStorageItem } from "../../../shared/config/ServerHelper";
 
 /**
  * ServerIndicator displays the currently connected server in the bottom left corner
@@ -50,36 +51,16 @@ export class ServerIndicator {
      * Update the server info display
      */
     private _updateServerInfo(): void {
-        let serverUrl;
-
-        // Check URL parameters first for encodedServer
-        const urlParams = new URLSearchParams(window.location.search);
-        const encodedServerParam = urlParams.get('encodedServer');
-
-        if (encodedServerParam) {
-            try {
-                // Decode the Base64 encoded server URL
-                serverUrl = atob(encodedServerParam);
-            } catch (error) {
-                console.error("Failed to decode server URL:", error);
-                // Fall back to localStorage if decode fails
-                serverUrl = localStorage.getItem('selectedServer') || 'Default Server';
-            }
-        } else {
-            // Fall back to localStorage if no URL parameter
-            serverUrl = localStorage.getItem('selectedServer') || 'Default Server';
-        }
+        // Get stored server or use default using the helper function
+        let serverUrl = getLocalStorageItem('selectedServer') || 'Default Server';
         
         // Format the display text
         let displayText;
-        if (serverUrl.startsWith('http://') || serverUrl.startsWith('https://')) {
-            // Extract hostname from URL
-            try {
-                const url = new URL(serverUrl);
-                displayText = `Server: ${url.hostname}`;
-            } catch (e) {
-                displayText = `Server: ${serverUrl}`;
-            }
+        if (serverUrl.startsWith('http://') || serverUrl.startsWith('https://') || 
+            serverUrl.startsWith('ws://') || serverUrl.startsWith('wss://')) {
+            // Extract hostname using the helper function
+            const hostname = extractHostname(serverUrl);
+            displayText = `Server: ${hostname}`;
         } else {
             displayText = `Server: ${serverUrl}`;
         }

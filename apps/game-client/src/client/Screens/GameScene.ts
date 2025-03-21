@@ -212,36 +212,70 @@ export class GameScene {
     }
 
     private async _initNetwork(): Promise<void> {
-        // join global chat room if not already connected
-        if (this._game.currentChat) {
-            this._game.currentChat.leave();
-        }
-        this._game.currentChat = await this._game.client.joinChatRoom({ name: this._game._currentCharacter.name });
+        try {
+            // join global chat room if not already connected
+            if (this._game.currentChat) {
+                this._game.currentChat.leave();
+            }
 
-        // join the game room and use chat room session ID
-        this.room = await this._game.client.joinOrCreateRoom(
-            this._game._currentCharacter.location,
-            this._game._currentUser.token,
-            this._game._currentCharacter.id
-        );
-        this._game.currentRoom = this.room;
+            try {
+                this._game.currentChat = await this._game.client.joinChatRoom({ name: this._game._currentCharacter.name });
+                console.log("Successfully joined chat room");
+            } catch (error) {
+                console.warn("Failed to join chat room, continuing without chat:", error);
+                // The error might be a CORS error but we'll continue without chat
+                if (error.message && error.message.includes("CORS")) {
+                    console.warn("CORS error detected. This usually happens when mixing HTTP/HTTPS or when the server is not configured for CORS.");
+                }
+            }
 
-        if (this.room) {
-            // set room onError evenmt
-            this.room.onError((code, message) => {
-                this._game.setScene(State.LOGIN);
-            });
+            // join the game room
+            try {
+                this.room = await this._game.client.joinOrCreateRoom(
+                    this._game._currentCharacter.location,
+                    this._game._currentUser.token,
+                    this._game._currentCharacter.id
+                );
+                this._game.currentRoom = this.room;
 
-            // set room onLeave event
-            this.room.onLeave((code) => {
-                if (code === 1006) {
+                if (this.room) {
+                    // set room onError event
+                    this.room.onError((code, message) => {
+                        console.error("Room error:", code, message);
+                        this._game.setScene(State.LOGIN);
+                    });
+
+                    // set room onLeave event
+                    this.room.onLeave((code) => {
+                        console.log("Left room with code:", code);
+                        if (code === 1006) {
+                            this._game.setScene(State.LOGIN);
+                        }
+                    });
+
+                    // initialize game
+                    await this._initGame();
+                } else {
+                    console.error("Failed to join game room");
                     this._game.setScene(State.LOGIN);
                 }
-            });
-
-            // initialize game
-            await this._initGame();
-        } else {
+            } catch (error) {
+                console.error("Failed to join/create game room:", error);
+                
+                // Check for CORS or offline errors specifically
+                if (error.message) {
+                    if (error.message.includes("CORS")) {
+                        console.error("CORS error detected. Please ensure the server is properly configured for cross-origin requests.");
+                    } else if (error.message.includes("offline")) {
+                        console.error("Server appears to be offline. Please check your server URL and ensure it's using HTTPS in production.");
+                    }
+                }
+                
+                this._game.setScene(State.LOGIN);
+            }
+        } catch (error) {
+            console.error("Network initialization error:", error);
+            this._game.setScene(State.LOGIN);
         }
     }
 

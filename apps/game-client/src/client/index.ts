@@ -39,6 +39,7 @@ import { Config } from "../shared/Config";
 import { Loading } from "./Controllers/Loading";
 import { isLocal } from "./Utils";
 import { GameController } from "./Controllers/GameController";
+import { processUrlParameters } from "../shared/config/ServerHelper";
 import "./FPS/index";
 
 // App class is our entire game application
@@ -71,7 +72,7 @@ class App {
         this.engine.setHardwareScalingLevel(1);
 
         // Process URL parameters for server configuration
-        this._processUrlParameters();
+        processUrlParameters();
 
         // loading
         var loadingScreen = new Loading("Loading Assets...");
@@ -97,53 +98,6 @@ class App {
                 }
             }
         });
-    }
-
-    /**
-     * Process URL parameters for server configuration
-     * Handles server URL parameters and stores them in localStorage
-     */
-    private _processUrlParameters(): void {
-        // Get URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const serverParam = urlParams.get('server');
-        const encodedServerParam = urlParams.get('encodedServer');
-        
-        console.log("Initializing with URL params:", { serverParam, encodedServerParam });
-        
-        // Process server parameter
-        if (serverParam) {
-            localStorage.setItem('selectedServer', serverParam);
-            console.log("Set selectedServer in localStorage:", serverParam);
-            
-            // Clean up URL to prevent re-processing on refresh
-            this._cleanupUrlParameters('server');
-        }
-        
-        // Process encoded server parameter (base64 encoded URL)
-        if (encodedServerParam) {
-            try {
-                const decodedUrl = atob(encodedServerParam);
-                localStorage.setItem('selectedServer', decodedUrl);
-                console.log("Set selectedServer in localStorage from encoded URL:", decodedUrl);
-                
-                // Clean up URL to prevent re-processing on refresh
-                this._cleanupUrlParameters('encodedServer');
-            } catch (error) {
-                console.error("Failed to decode server URL:", error);
-            }
-        }
-    }
-
-    /**
-     * Remove processed parameters from URL without page reload
-     */
-    private _cleanupUrlParameters(paramToRemove: string): void {
-        if (window.history && window.history.replaceState) {
-            const url = new URL(window.location.href);
-            url.searchParams.delete(paramToRemove);
-            window.history.replaceState({}, document.title, url.toString());
-        }
     }
 
     private async _render(): Promise<void> {

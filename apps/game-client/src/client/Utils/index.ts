@@ -1,5 +1,8 @@
+import { isLocalEnvironment, getServerUrl, clearServerStorage } from "../../shared/config/ServerHelper";
+
+// Re-export isLocalEnvironment as isLocal for backward compatibility
 const isLocal = function (): boolean {
-    return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    return isLocalEnvironment();
 };
 
 /**
@@ -17,53 +20,32 @@ const isLocalForColyseus = function (): boolean {
     return isLocal();
 };
 
+/**
+ * Get the API URL for HTTP requests
+ * @param port - The port to use (if applicable)
+ * @param serverHost - Optional server host override
+ * @returns Properly formatted API URL
+ */
 const apiUrl = function (port: number | string, serverHost: string | null = null): string {
-    // For local development
-    if (isLocal() && !serverHost) {
-        return `http://localhost:${port}`;
+    // If server host is explicitly provided, use it with the appropriate protocol
+    if (serverHost) {
+        return getServerUrl('http', true, typeof port === 'number' ? port : parseInt(port as string, 10));
     }
     
-    // Use the server from localStorage if available
-    const storedServer = localStorage.getItem('selectedServer');
-    if (serverHost === null && storedServer) {
-        return storedServer;
-    }
-    
-    // Production URL if no serverHost provided
-    if (!serverHost) {
-        return 'https://api.degenquest.ai';
-    }
-    
-    // Handle provided serverHost
-    if (serverHost.includes('localhost')) {
-        // Local development can use HTTP
-        if (!serverHost.startsWith('http://') && !serverHost.startsWith('https://')) {
-            return `http://${serverHost}`;
-        }
-        return serverHost;
-    } else {
-        // Production environments must use HTTPS
-        if (!serverHost.startsWith('http://') && !serverHost.startsWith('https://')) {
-            return `https://${serverHost}`;
-        } else if (serverHost.startsWith('http://')) {
-            return serverHost.replace('http://', 'https://');
-        }
-        return serverHost;
-    }
+    // Otherwise use the universal helper with port
+    return getServerUrl('http', true, typeof port === 'number' ? port : parseInt(port as string, 10));
 };
 
 /**
  * Clear all local storage data related to server selection and game state
  */
 const clearLocalStorage = function (): void {
-    try {
-        localStorage.removeItem('selectedServer');
-        localStorage.removeItem('force_production_colyseus');
-        // Add other keys that should be cleared here
-        console.log('Local storage cleared');
-    } catch (error) {
-        console.error('Failed to clear local storage:', error);
-    }
+    clearServerStorage();
+    
+    // Add other keys that should be cleared here if needed
+    // localStorage.removeItem('other_key');
+    
+    console.log('Local storage cleared');
 };
 
 export { isLocal, isLocalForColyseus, apiUrl, clearLocalStorage };
