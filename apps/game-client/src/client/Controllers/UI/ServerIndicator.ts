@@ -50,8 +50,25 @@ export class ServerIndicator {
      * Update the server info display
      */
     private _updateServerInfo(): void {
-        // Get server URL from localStorage or use default
-        const serverUrl = localStorage.getItem('selectedServer') || 'Default Server';
+        let serverUrl;
+
+        // Check URL parameters first for encodedServer
+        const urlParams = new URLSearchParams(window.location.search);
+        const encodedServerParam = urlParams.get('encodedServer');
+
+        if (encodedServerParam) {
+            try {
+                // Decode the Base64 encoded server URL
+                serverUrl = atob(encodedServerParam);
+            } catch (error) {
+                console.error("Failed to decode server URL:", error);
+                // Fall back to localStorage if decode fails
+                serverUrl = localStorage.getItem('selectedServer') || 'Default Server';
+            }
+        } else {
+            // Fall back to localStorage if no URL parameter
+            serverUrl = localStorage.getItem('selectedServer') || 'Default Server';
+        }
         
         // Format the display text
         let displayText;
