@@ -1,5 +1,5 @@
 {
-    "name": "degenquest-client",
+    "name": "degenquest-server",
     "version": "0.0.1",
     "repository": {
         "url": ""
@@ -7,9 +7,11 @@
     "description": "Building a basic multiplayer 3d top down rpg using babylon.js and colyseus",
     "main": "./dist/client/index.html",
     "scripts": {
-        "client-dev": "webpack serve --open --config webpack.dev.js",
-        "client-start": "webpack serve --open --config webpack.dev.js",
-        "client-build": "webpack --config webpack.prod.js"
+        "server-debug": "ts-node-dev --respawn --inspect --transpile-only src/server/index.ts",
+        "server-dev": "ts-node-dev --respawn --inspect --transpile-only src/server/index.ts",
+        "server-start": "ts-node --transpile-only src/server/index.ts",
+        "server-build": "tsc && cp -r public dist",
+        "loadtest": "npx tsx loadtest/test.ts --room game_room --numClients 10 --endpoint ws://localhost:3000"
     },
     "author": "Orion3d",
     "license": "MIT",
