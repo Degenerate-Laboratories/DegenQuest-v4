@@ -1,4 +1,4 @@
-const isLocal = function () {
+const isLocal = function (): boolean {
     return window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 };
 
@@ -7,7 +7,7 @@ const isLocal = function () {
  * When force_production_colyseus is set, we'll consider the environment as production
  * even when running locally.
  */
-const isLocalForColyseus = function () {
+const isLocalForColyseus = function (): boolean {
     // If we have the force production flag set, always return false to use production settings
     if (localStorage.getItem('force_production_colyseus') === 'true') {
         return false;
@@ -17,7 +17,7 @@ const isLocalForColyseus = function () {
     return isLocal();
 };
 
-const apiUrl = function (port, serverHost = null) {
+const apiUrl = function (port: number | string, serverHost: string | null = null): string {
     // For local development
     if (isLocal() && !serverHost) {
         return `http://localhost:${port}`;
@@ -55,7 +55,7 @@ const apiUrl = function (port, serverHost = null) {
 /**
  * Clear all local storage data related to server selection and game state
  */
-const clearLocalStorage = function () {
+const clearLocalStorage = function (): void {
     try {
         localStorage.removeItem('selectedServer');
         localStorage.removeItem('force_production_colyseus');
